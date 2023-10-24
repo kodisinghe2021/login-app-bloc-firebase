@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:simple_login_app/bloc/authentication_bloc.dart';
+import 'package:simple_login_app/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:simple_login_app/token/user_token.dart';
 
 class Home extends StatefulWidget {

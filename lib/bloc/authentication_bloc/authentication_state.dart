@@ -16,3 +16,7 @@ final class AuthenticationSuccessState extends AuthenticationState {
 final class AuthenticationFailedState extends AuthenticationState {
   const AuthenticationFailedState() : super();
 }
+
+final class AuthenticationCheckingState extends AuthenticationState {
+  const AuthenticationCheckingState() : super();
+}

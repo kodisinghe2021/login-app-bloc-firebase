@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
+import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
 import 'package:simple_login_app/exception.dart';
 import 'package:simple_login_app/repository/firebase.dart';
 import 'package:simple_login_app/token/user_token.dart';
@@ -18,7 +19,7 @@ class AuthenticationBloc
 
   final TextEditingController username = TextEditingController();
   final TextEditingController password = TextEditingController();
-
+  final LoginBloc _loginBloc = LoginBloc();
   bool _isFirstLoad = true;
   void setisFirstLoad(bool val) {
     _isFirstLoad = val;
@@ -73,6 +74,9 @@ class AuthenticationBloc
       }
 
       if (event is LogInEvent) {
+        Logger().i("inside AuthenticationBloc -- LogInEvent");
+        _loginBloc.add(LoginDetailsEnterEvent());
+
         if (username.text.isEmpty || password.text.isEmpty) {
           Logger().i("Empty fields");
           Fluttertoast.showToast(
@@ -83,6 +87,8 @@ class AuthenticationBloc
               backgroundColor: Colors.red,
               textColor: Colors.white,
               fontSize: 16.0);
+          await Future.delayed(const Duration(seconds: 1));
+          _loginBloc.add(LoginDetailsAddedEvent());
           return;
         }
 
@@ -114,7 +120,26 @@ class AuthenticationBloc
         //! __________+++++_______________
         Logger().i(
             "login success token created --  ${UserToken().getEmail} -- ${UserToken().getUserID}");
+        _loginBloc.add(LoginDetailsAddedEvent());
         AuthenticationBloc().add(AuthenticationCheckingEvent());
+      }
+      if (event is LoginCheckingEvent) {
+        Logger().i("LoginCheckingEvent is emit AuthenticationCheckingState");
+        emit(const AuthenticationCheckingState());
+      }
+
+      if (event is ForgotPasswordEvent) {
+        if (username.text.isEmpty) {
+          Fluttertoast.showToast(
+              msg: "Please Enter your email",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.blue,
+              textColor: Colors.white,
+              fontSize: 16.0);
+          return;
+        }
       }
     });
   }

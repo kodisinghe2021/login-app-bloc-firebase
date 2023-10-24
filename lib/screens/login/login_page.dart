@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:simple_login_app/bloc/authentication_bloc.dart';
+import 'package:simple_login_app/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
 
 class Login extends StatelessWidget {
   bool isTapped = false;
@@ -28,12 +29,28 @@ class Login extends StatelessWidget {
               iconData: Icons.person,
               controller: context.read<AuthenticationBloc>().password,
             ),
-            // BlocBuilder(builder: (context, state) {
-            //   if (state is LoadingStartState) {
-            //     return const CircularProgressIndicator();
-            //   }
-
-            _ActiveloginButton(context, sSize),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: TextButton(
+                  onPressed: () {},
+                  child: const Text("Forogot Password?"),
+                ),
+              ),
+            ),
+            BlocConsumer<LoginBloc, LoginState>(
+              listener: (context, state) {},
+              builder: (context, state) {
+                Logger()
+                    .i("Inside BlocConsumer -- LoginBloc state is --$state");
+                if (state is LoginCheckingState) {
+                  Logger().i("State is LoginCheckingState");
+                  return _DeactivatedLoginButton();
+                }
+                return _ActiveloginButton(context, sSize);
+              },
+            ),
           ],
         ),
       ),
@@ -43,9 +60,8 @@ class Login extends StatelessWidget {
   Widget _ActiveloginButton(BuildContext context, Size sSize) =>
       GestureDetector(
         onTap: () async {
-          //await Future.delayed(const Duration(milliseconds: 300));
-          // context.read<LoaderBloc>().add(LoadingEvent());
           context.read<AuthenticationBloc>().add(LogInEvent());
+          //  context.read<LoginBloc>().add(LoginDetailsEnterEvent());
         },
         child: Container(
           width: sSize.width * .18,
