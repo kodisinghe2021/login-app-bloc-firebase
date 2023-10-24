@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "747963088098",
+    "project_id": "bloc-login-app",
+    "storage_bucket": "bloc-login-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747963088098:android:56419c5154fce53ad372bb",
+        "android_client_info": {
+          "package_name": "com.example.bloc_firebase_auth_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcuwNUhl4vZncJs3-pouxjdMrXVwryjXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747963088098:android:3170c1ad6e0e2a18d372bb",
+        "android_client_info": {
+          "package_name": "com.example.simple_login_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcuwNUhl4vZncJs3-pouxjdMrXVwryjXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
