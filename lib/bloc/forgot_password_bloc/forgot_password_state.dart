@@ -10,10 +10,6 @@ final class ForgotPasswordInitial extends ForgotPasswordState {
   ForgotPasswordInitial() : super(isSuccess: false);
 }
 
-final class ShowPopupState extends ForgotPasswordState {
-  ShowPopupState() : super(isSuccess: false);
-}
-
 final class LinkSendingState extends ForgotPasswordState {
   LinkSendingState() : super(isSuccess: false);
 }
@@ -24,5 +20,7 @@ final class LinkSentSuccessState extends ForgotPasswordState {
 }
 
 final class LinkSendingFailedState extends ForgotPasswordState {
-  LinkSendingFailedState() : super(isSuccess: false);
+  String errormessage;
+  LinkSendingFailedState({required this.errormessage})
+      : super(isSuccess: false);
 }

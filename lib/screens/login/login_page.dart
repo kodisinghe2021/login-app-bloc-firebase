@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:logger/logger.dart';
 import 'package:simple_login_app/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:simple_login_app/bloc/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
 import 'package:simple_login_app/widgets/popup_box.dart';
 
 class Login extends StatelessWidget {
   bool isTapped = false;
   final TextEditingController _email = TextEditingController();
+  final TextEditingController _email_forgot = TextEditingController();
   Login({super.key});
   @override
   Widget build(BuildContext context) {
@@ -17,41 +20,74 @@ class Login extends StatelessWidget {
     return Scaffold(
       body: SizedBox(
         width: screenSize.width,
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomTextField(
-                  hint: 'Enter Username',
-                  iconData: Icons.security,
-                  controller: context.read<AuthenticationBloc>().username,
-                ),
-                CustomTextField(
-                  hint: 'Enter Password',
-                  iconData: Icons.person,
-                  controller: context.read<AuthenticationBloc>().password,
-                ),
-
-                PopUpBox(
+            CustomTextField(
+              hint: 'Enter Username',
+              iconData: Icons.security,
+              controller: context.read<AuthenticationBloc>().username,
+            ),
+            CustomTextField(
+              hint: 'Enter Password',
+              iconData: Icons.person,
+              controller: context.read<AuthenticationBloc>().password,
+            ),
+//TODO: BlocConsumer
+//-_------____--__--__-- forgot password filed --------------------------\\
+            BlocConsumer<ForgotPasswordBloc, ForgotPasswordState>(
+              //~ listning area ----
+              listener: (context, state) {
+                if (state is LinkSendingFailedState) {
+                  showMessage(
+                    state.errormessage,
+                    color: Colors.redAccent,
+                  );
+                }
+              },
+              //~ building area ----
+              builder: (context, state) {
+                if (state is LinkSendingState) {
+                  return _loader(screenSize);
+                }
+                if (state is LinkSentSuccessState) {
+                  return const Text("The reset link sent to the email");
+                }
+                if (state is LinkSendingFailedState) {
+                  return PopUpBox(
+                    enabledWidget: _forgotPassword(screenSize),
+                    focusWidget: _showPopupInputBox(
+                      screenSize,
+                      context,
+                      _email_forgot.text,
+                    ),
+                  );
+                }
+                return PopUpBox(
                   enabledWidget: _forgotPassword(screenSize),
-                  focusWidget: _showPopupInputBox(screenSize),
-                ),
-                const SizedBox(height: 20),
+                  focusWidget: _showPopupInputBox(
+                    screenSize,
+                    context,
+                    _email_forgot.text,
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
 //--------------|||||------------------|||||--------------------------------|||||
-                BlocConsumer<LoginBloc, LoginState>(
-                  listener: (context, state) {},
-                  builder: (context, state) {
-                    Logger().i(
-                        "Inside BlocConsumer -- LoginBloc state is --$state");
-                    if (state is LoginCheckingState) {
-                      Logger().i("State is LoginCheckingState");
-                      return _DeactivatedLoginButton();
-                    }
-                    return _ActiveloginButton(context, screenSize);
-                  },
-                ),
-              ],
+            BlocConsumer<LoginBloc, LoginState>(
+              listener: (context, state) {},
+              builder: (context, state) {
+                Logger()
+                    .i("Inside BlocConsumer -- LoginBloc state is --$state");
+                if (state is LoginCheckingState) {
+                  Logger().i("State is LoginCheckingState");
+                  return _loader(screenSize);
+                }
+                return _ActiveloginButton(context, screenSize);
+              },
             ),
           ],
         ),
@@ -60,30 +96,29 @@ class Login extends StatelessWidget {
   }
 
 //*====================== Popup Input box
-  Widget _forgotPassword(Size screenSize) => Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.only(left: 20),
-          width: screenSize.width * .3,
-          height: screenSize.height * .05,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const FittedBox(
-            child: Material(
-              type: MaterialType.transparency,
-              child: Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.blueAccent,
-                ),
+  Widget _forgotPassword(Size screenSize) => Container(
+        width: screenSize.width * .3,
+        height: screenSize.height * .05,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const FittedBox(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Forgot Password?',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.blueAccent,
               ),
             ),
           ),
         ),
       );
-  Widget _showPopupInputBox(Size screenSize) => Material(
+
+  Widget _showPopupInputBox(
+          Size screenSize, BuildContext context, String email) =>
+      Material(
         borderRadius: BorderRadius.circular(20),
         child: SingleChildScrollView(
           child: Container(
@@ -112,6 +147,7 @@ class Login extends StatelessWidget {
                   height: 10,
                 ),
                 TextFormField(
+                  controller: _email_forgot,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -124,7 +160,20 @@ class Login extends StatelessWidget {
                 ),
                 const Spacer(),
                 InkWell(
-                  onTap: () {},
+                  //TODO: Forgotpassword Event trigger
+                  onTap: () {
+                    if (_email_forgot.text.isEmpty) {
+                      showMessage(
+                        "Please Enter your email",
+                        color: Colors.red,
+                      );
+                      return;
+                    }
+                    context
+                        .read<ForgotPasswordBloc>()
+                        .add(ForgotClickedEvent(email: email));
+                    Navigator.pop(context);
+                  },
                   child: Container(
                     width: screenSize.width * .5,
                     height: screenSize.height * .06,
@@ -156,24 +205,57 @@ class Login extends StatelessWidget {
           //  context.read<LoginBloc>().add(LoginDetailsEnterEvent());
         },
         child: Container(
-          width: screenSize.width * .18,
-          height: screenSize.width * .18,
-          margin: const EdgeInsets.only(right: 30),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
+          width: screenSize.width * .8,
+          height: screenSize.height * .07,
+          decoration: BoxDecoration(
             color: Colors.blueAccent,
+            borderRadius: BorderRadius.circular(50),
           ),
-          child: const Center(
-              child: Icon(
-            Icons.arrow_forward_ios,
-            size: 40,
-            color: Colors.white,
-            weight: 40,
-          )),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 40,
+                color: Colors.white.withOpacity(.4),
+                weight: 40,
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 40,
+                color: Colors.white.withOpacity(.6),
+                weight: 40,
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 40,
+                color: Colors.white.withOpacity(.8),
+                weight: 40,
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 40,
+                color: Colors.white.withOpacity(1),
+                weight: 40,
+              ),
+            ],
+          ),
         ),
       );
 
-  Widget _DeactivatedLoginButton() => const CircularProgressIndicator();
+  Widget _loader(Size screenSize) => SizedBox(
+        width: screenSize.width * .1,
+        height: screenSize.width * .1,
+        child: const LoadingIndicator(
+          indicatorType: Indicator.ballRotateChase,
+          colors: [
+            Colors.blueAccent,
+            Colors.blue,
+          ],
+          strokeWidth: 1,
+        ),
+      );
 }
 
 class CustomTextField extends StatefulWidget {

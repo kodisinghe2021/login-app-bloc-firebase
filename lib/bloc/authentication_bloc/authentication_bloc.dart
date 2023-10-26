@@ -48,8 +48,8 @@ class AuthenticationBloc
         //--- execute Firebase function
         bool isUserLogged = getStorage.hasData('userID');
 
-        // Logger().i(
-        //     "Local storage data -- $isUserLogged -- ${getStorage.read('userID')}");
+        Logger().i(
+            "Local storage data -- $isUserLogged -- ${getStorage.read('userID')}");
 
         if (isUserLogged) {
           // 1. get user local id
@@ -58,7 +58,7 @@ class AuthenticationBloc
           await authenticationFirebase.requestForUserData(userID);
           emit(const AuthenticationSuccessState());
         } else {
-          //  Logger().i("Login Failed");
+          Logger().i("Login Failed");
           emit(const AuthenticationFailedState());
         }
       }

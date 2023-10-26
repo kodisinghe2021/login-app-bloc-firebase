@@ -17,28 +17,21 @@ class ForgotPasswordBloc
       AuthenticationFirebase authenticationFirebase = AuthenticationFirebase();
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (event is ForgotClickedEvent) {
-        emit(ShowPopupState());
-      }
-      if (event is LinkSending) {
-        Logger().i("LinkSending  event is triggered");
+        Logger().i("ForgotClickedEvent is Triggered");
         emit(LinkSendingState());
-        //!!!!!!!
-        await Future.delayed(const Duration(milliseconds: 2000));
-        //!!!!!!
-
+        Logger().i("LinkSendState Triggered");
         bool isSuccess =
             await authenticationFirebase.forgotPassword(event.email);
-
+        Logger().i("Inside forgot bloc -- $isSuccess");
         //---- if failed and error ocured
         if (isSuccess) {
           UserToken().clearCredintial();
+          Logger().i("User Credintial cleared --${UserToken().getUserID}");
           emit(LinkSentSuccessState(isSucces: true));
           authenticationBloc.add(AuthenticationCheckingEvent());
-          // _isLoadingCubit.isLoading();
-          // showMessage('Email link sent successfully');
         } else {
-          ExceptionsKeeper().setMessage("Somthing went wrong");
-          emit(LinkSendingFailedState());
+          emit(LinkSendingFailedState(
+              errormessage: ExceptionsKeeper().getErrorMessage));
         }
       }
     });

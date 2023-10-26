@@ -12,8 +12,10 @@ class ExceptionsKeeper {
       case 'INVALID_LOGIN_CREDENTIALS':
         _errorMessage = "email or password is not valid";
         break;
-      default:
+      case '':
         _errorMessage = "Somthing went wrong";
+      default:
+        _errorMessage = message;
     }
   }
 

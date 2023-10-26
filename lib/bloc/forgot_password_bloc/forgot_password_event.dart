@@ -8,4 +8,8 @@ final class LinkSending extends ForgotPasswordEvent {
   LinkSending({required this.email});
 }
 
-final class ForgotClickedEvent extends ForgotPasswordEvent {}
+final class ForgotClickedEvent extends ForgotPasswordEvent {
+  String email;
+
+  ForgotClickedEvent({required this.email}) : super();
+}
