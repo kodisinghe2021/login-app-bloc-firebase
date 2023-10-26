@@ -11,4 +11,6 @@ final class LogInEvent extends AuthenticationEvent {}
 
 final class LoginCheckingEvent extends AuthenticationEvent {}
 
-final class ForgotPasswordEvent extends AuthenticationEvent {}
+// final class ForgotPasswordEvent extends AuthenticationEvent {}
+
+final class ResetPasswordEvent extends AuthenticationEvent {}

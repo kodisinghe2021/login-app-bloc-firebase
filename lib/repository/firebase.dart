@@ -48,16 +48,80 @@ class AuthenticationFirebase {
     }
   }
 
+//*-------------------------------logout---03
   Future<void> logout() async {
     try {
       await _auth.signOut();
       Logger().i("Singout Success from Firebase");
       // clear local storage
-      _getStorage.erase();
-      UserToken().setUserID("");
-      UserToken().setEmail("");
+      await UserToken().clearCredintial();
     } on FirebaseAuthException catch (e) {
       Logger().e(e.code);
+    }
+  }
+
+//*---------------------- forgot password -- 04
+  Future<bool> forgotPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      Logger().i("Link sent successfully.....");
+      return true;
+    } on FirebaseAuthException catch (e) {
+      Logger().e("failed to sent link--${e.code}");
+      ExceptionsKeeper().setMessage(e.code);
+      return false;
+    }
+  }
+
+//*---------------------- update password -- 05
+  Future<bool> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    Logger().i("updatePassword function $currentPassword -- $newPassword");
+
+    try {
+      Logger().i(
+          "Trying to login ${UserToken().getEmail.toString()}---- $currentPassword");
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: UserToken().getEmail.toString(),
+        password: currentPassword,
+      );
+
+      Logger().i(
+          "User Login Successfully ${userCredential.user!.email.toString()}");
+      //_____________+++++_______________
+      AuthCredential authCredential = userCredential.credential ??
+          const AuthCredential(providerId: "", signInMethod: "");
+      // const AuthCredential(providerId: "", signInMethod: "");
+      //_____________+++++_______________
+      Logger().i(
+          "Condition success -- ${userCredential.credential != null} ---  ${userCredential.user!.email!.isNotEmpty}");
+      if (userCredential.user!.email.toString().isNotEmpty) {
+        Logger().i("Inside if ----+++++++++++++@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        // authCredential = userCredential.credential ??
+        //     const AuthCredential(providerId: "", signInMethod: "");
+        Logger().i("AuthCredintial Catched --- ${authCredential.accessToken}");
+        try {
+          // UserCredential newCredintial = await userCredential.user!
+          //     .reauthenticateWithCredential(authCredential);
+          // Logger().i(
+          //     "Reauthentication success -- ${newCredintial.user!.email.toString()}");
+          await userCredential.user!.updatePassword(newPassword);
+          Logger().i("password Updated successfully.....");
+          return true;
+        } on FirebaseAuthException catch (e) {
+          Logger().i("password Updated Failed -- ${e.code}");
+          ExceptionsKeeper().setMessage('Update failed -- ${e.code}');
+          return false;
+        }
+      } else {
+        ExceptionsKeeper().setMessage('Current password is invalid');
+        return false;
+      }
+    } on FirebaseAuthException catch (e) {
+      ExceptionsKeeper().setMessage(e.code);
+      return false;
     }
   }
 }

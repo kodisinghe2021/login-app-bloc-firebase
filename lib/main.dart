@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:simple_login_app/app.dart';
 import 'package:simple_login_app/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:simple_login_app/bloc/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
 
 void main() async {
@@ -21,6 +22,9 @@ void main() async {
         ),
         BlocProvider<LoginBloc>(
           create: (context) => LoginBloc(),
+        ),
+        BlocProvider<ForgotPasswordBloc>(
+          create: (context) => ForgotPasswordBloc(),
         ),
       ],
       child: const AppView(),

@@ -41,6 +41,8 @@ dependencies:
   get_storage: ^2.1.1
   firebase_core: ^2.19.0
   firebase_auth: ^4.11.1
+  # url_launcher: ^6.2.0
+  # open_mail_app: ^0.4.5
 
 dev_dependencies:
   flutter_test:
