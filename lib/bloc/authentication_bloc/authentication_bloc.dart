@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
-import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
 import 'package:simple_login_app/exception.dart';
 import 'package:simple_login_app/repository/firebase.dart';
 import 'package:simple_login_app/token/user_token.dart';
@@ -21,7 +20,7 @@ class AuthenticationBloc
   final TextEditingController password = TextEditingController();
   final TextEditingController currentPassword = TextEditingController();
   final TextEditingController newPassword = TextEditingController();
-  final LoginBloc _loginBloc = LoginBloc();
+  // final LoginBloc _loginBloc = LoginBloc();
 
   bool _isFirstLoad = true;
 
@@ -40,6 +39,7 @@ class AuthenticationBloc
 
 //&-----------------------------------------------AuthenticationCheckingEvent
       if (event is AuthenticationCheckingEvent) {
+        Logger().i("authentication loggin");
         if (AuthenticationBloc().getisFirstLoad) {
           await Future.delayed(const Duration(seconds: 3));
           AuthenticationBloc().setisFirstLoad(false);
@@ -71,40 +71,43 @@ class AuthenticationBloc
         showMessage("Successfully log out", color: Colors.red);
         AuthenticationBloc().add(AuthenticationCheckingEvent());
       }
+
 //&-----------------------------------------------LogInEvent
-      if (event is LogInEvent) {
-        Logger().i("inside AuthenticationBloc -- LogInEvent");
-        _loginBloc.add(LoginDetailsEnterEvent());
 
-        if (username.text.isEmpty || password.text.isEmpty) {
-          Logger().i("Empty fields");
-          showMessage("Empty fiels", color: Colors.red);
-          await Future.delayed(const Duration(seconds: 1));
+      // if (event is LogInEvent) {
+      //   Logger().i("inside AuthenticationBloc -- LogInEvent");
+      //   _loginBloc.add(LoginDetailsEnterEvent());
 
-          _loginBloc.add(LoginDetailsAddedEvent());
-          return;
-        }
-        Logger().i("get into false side");
-        //! __________+++++_______________
-        bool isLoginSuccess =
-            await authenticationFirebase.login(username.text, password.text);
+      //   if (username.text.isEmpty || password.text.isEmpty) {
+      //     Logger().i("Empty fields");
+      //     showMessage("Empty fiels", color: Colors.red);
+      //     await Future.delayed(const Duration(seconds: 1));
 
-        if (!isLoginSuccess) {
-          showMessage(ExceptionsKeeper().getErrorMessage.toString(),
-              color: Colors.red);
-        } else {
-          username.clear();
-          password.clear();
-          showMessage("Login Success");
-        }
-        //! __________+++++_______________
-        // Logger().i(
-        //     "login success token created --  ${UserToken().getEmail} -- ${UserToken().getUserID}");
+      //     _loginBloc.add(LoginDetailsAddedEvent());
+      //     return;
+      //   }
+      //   Logger().i("get into false side");
+      //   //! __________+++++_______________
+      //   bool isLoginSuccess =
+      //       await authenticationFirebase.login(username.text, password.text);
 
-        _loginBloc.add(LoginDetailsAddedEvent());
+      //   if (!isLoginSuccess) {
+      //     showMessage(ExceptionsKeeper().getErrorMessage.toString(),
+      //         color: Colors.red);
+      //   } else {
+      //     username.clear();
+      //     password.clear();
+      //     showMessage("Login Success");
+      //   }
+      //   //! __________+++++_______________
+      //   // Logger().i(
+      //   //     "login success token created --  ${UserToken().getEmail} -- ${UserToken().getUserID}");
 
-        AuthenticationBloc().add(AuthenticationCheckingEvent());
-      }
+      //   _loginBloc.add(LoginDetailsAddedEvent());
+
+      //   AuthenticationBloc().add(AuthenticationCheckingEvent());
+      // }
+
 //&-----------------------------------------------LoginCheckingEvent
       if (event is LoginCheckingEvent) {
         Logger().i("LoginCheckingEvent is emit AuthenticationCheckingState");

@@ -11,6 +11,7 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Logger().i("Inside AppView");
     return const MaterialApp(
       home: BlocBuilderView(),
     );
@@ -22,6 +23,7 @@ class BlocBuilderView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Logger().i("inside builder");
     return BlocConsumer<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {},
       builder: (context, state) {

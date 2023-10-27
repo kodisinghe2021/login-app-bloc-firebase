@@ -5,12 +5,14 @@ import 'package:logger/logger.dart';
 import 'package:simple_login_app/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:simple_login_app/bloc/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:simple_login_app/bloc/login_bloc/login_bloc.dart';
+import 'package:simple_login_app/exception.dart';
 import 'package:simple_login_app/widgets/popup_box.dart';
 
 class Login extends StatelessWidget {
   bool isTapped = false;
   final TextEditingController _email = TextEditingController();
-  final TextEditingController _email_forgot = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _emailForgot = TextEditingController();
   Login({super.key});
   @override
   Widget build(BuildContext context) {
@@ -24,20 +26,22 @@ class Login extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+//_---------------------------------------------------------------fields here
             CustomTextField(
               hint: 'Enter Username',
               iconData: Icons.security,
-              controller: context.read<AuthenticationBloc>().username,
+              controller: _email,
             ),
             CustomTextField(
               hint: 'Enter Password',
               iconData: Icons.person,
-              controller: context.read<AuthenticationBloc>().password,
+              controller: _password,
             ),
-//TODO: BlocConsumer
+//_--------------------------------------------------------------fields here
+
 //-_------____--__--__-- forgot password filed --------------------------\\
             BlocConsumer<ForgotPasswordBloc, ForgotPasswordState>(
-              //~ listning area ----
+              //------------------- listning area ----
               listener: (context, state) {
                 if (state is LinkSendingFailedState) {
                   showMessage(
@@ -46,7 +50,7 @@ class Login extends StatelessWidget {
                   );
                 }
               },
-              //~ building area ----
+              // building area ----
               builder: (context, state) {
                 if (state is LinkSendingState) {
                   return _loader(screenSize);
@@ -60,7 +64,7 @@ class Login extends StatelessWidget {
                     focusWidget: _showPopupInputBox(
                       screenSize,
                       context,
-                      _email_forgot.text,
+                      _emailForgot.text,
                     ),
                   );
                 }
@@ -69,7 +73,7 @@ class Login extends StatelessWidget {
                   focusWidget: _showPopupInputBox(
                     screenSize,
                     context,
-                    _email_forgot.text,
+                    _emailForgot.text,
                   ),
                 );
               },
@@ -78,7 +82,16 @@ class Login extends StatelessWidget {
             const SizedBox(height: 20),
 //--------------|||||------------------|||||--------------------------------|||||
             BlocConsumer<LoginBloc, LoginState>(
-              listener: (context, state) {},
+              listener: (context, state) {
+                if (state is LoginFailedState) {
+                  showMessage(
+                    "Login Failed: ${ExceptionsKeeper().getErrorMessage}",
+                    color: Colors.red,
+                  );
+                  _email.clear();
+                  _password.clear();
+                }
+              },
               builder: (context, state) {
                 Logger()
                     .i("Inside BlocConsumer -- LoginBloc state is --$state");
@@ -147,7 +160,7 @@ class Login extends StatelessWidget {
                   height: 10,
                 ),
                 TextFormField(
-                  controller: _email_forgot,
+                  controller: _emailForgot,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -160,9 +173,8 @@ class Login extends StatelessWidget {
                 ),
                 const Spacer(),
                 InkWell(
-                  //TODO: Forgotpassword Event trigger
                   onTap: () {
-                    if (_email_forgot.text.isEmpty) {
+                    if (_emailForgot.text.isEmpty) {
                       showMessage(
                         "Please Enter your email",
                         color: Colors.red,
@@ -197,12 +209,24 @@ class Login extends StatelessWidget {
           ),
         ),
       );
-
+//!------------------------------------------------------------------------------
   Widget _ActiveloginButton(BuildContext context, Size screenSize) =>
       GestureDetector(
         onTap: () async {
-          context.read<AuthenticationBloc>().add(LogInEvent());
-          //  context.read<LoginBloc>().add(LoginDetailsEnterEvent());
+//!------------------------------------------------------------------------------
+          if (_email.text.isEmpty || _password.text.isEmpty) {
+            showMessage("Fields empty", color: Colors.red);
+            return;
+          }
+          Logger().i(
+              "user credintial--${_email.text.trim()}-${_password.text.trim()}");
+//!------------------------------------------------------------------------------
+          context.read<LoginBloc>().add(LoginDetailsAddedEvent(
+                email: _email.text.trim(),
+                password: _password.text.trim(),
+              ));
+//!------------------------------------------------------------------------------
+          FocusScope.of(context).unfocus();
         },
         child: Container(
           width: screenSize.width * .8,

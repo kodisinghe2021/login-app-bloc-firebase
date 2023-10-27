@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:logger/logger.dart';
 
 class UserToken {
   static final UserToken _instance = UserToken._internal();
@@ -26,5 +28,12 @@ class UserToken {
     await _localStore.erase();
     setEmail("");
     setUserID("");
+  }
+
+  Future<void> setData(UserCredential userCredential) async {
+    setEmail(userCredential.user!.email.toString());
+    setUserID(userCredential.user!.uid);
+    await _localStore.write('userID', userCredential.user!.uid);
+    Logger().i("Successfullt created user data -- ${UserToken().getEmail}");
   }
 }

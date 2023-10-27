@@ -24,19 +24,16 @@ class AuthenticationFirebase {
   }
 
   //* login with firebase -------------------------02
-  Future<bool> login(String username, String password) async {
+  Future<bool> login({required String email, required String password}) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: username, password: password);
+          email: email, password: password);
       if (userCredential.user!.uid.isNotEmpty &&
           userCredential.user!.email.toString().isNotEmpty) {
         Logger().i("Login Success from Firebase");
-        // set user ID for local storage
-        _getStorage.write('userID', userCredential.user!.uid);
 
         // make object with values
-        UserToken().setUserID(userCredential.user!.uid);
-        UserToken().setEmail(userCredential.user!.email.toString());
+        await UserToken().setData(userCredential);
 
         return true;
       }
